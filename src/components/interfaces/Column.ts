@@ -1,3 +1,3 @@
 export interface Column {
-    player?: string
+    player?: number
 }
