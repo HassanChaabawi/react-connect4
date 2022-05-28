@@ -1,26 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Row } from "src/components/interfaces/Row";
-import { Board } from "src/components/interfaces/Board";
-import { INITIAL_BOARD, INITIAL_ROW } from "src/components/constants/index";
+import React, { useState } from "react";
+import {
+  c4Columns,
+  c4Rows
+} from "src/components/constants/index";
 import GameRow from "src/components/GameRow";
+import { Board } from "src/components/interfaces/Board";
+import { Row } from "src/components/interfaces/Row";
 
 const GameBoard: React.FunctionComponent = (): JSX.Element => {
-  const [board, setBoard] = useState<Board>({ rows: [] });
-  const [currPlayer, setCurrPlayer] = useState<number>(1);
-  useEffect(() => {
-    createBoard();
-  }, []);
-  const createBoard = (): void => {
-    let initialBoard: Board = { rows: [] };
-    for (let r: number = 0; r < 6; r++) {
-      let row: Row = { columns: [] };
-      for (let c: number = 0; c < 7; c++) {
-        row.columns.push({ player: null });
-      }
-      initialBoard.rows.push(row);
-    }
-    setBoard(initialBoard);
+  const initialBoard =  {
+    rows: Array(c4Rows).fill({columns: Array(c4Columns).fill({player: null})})
   };
+  const [board, setBoard] = useState<Board>(initialBoard);
+  const [currPlayer, setCurrPlayer] = useState<number>(1);
+ 
   const updateBoard = (columnIndex: number): void => {
     let boardCopy: Board = board;
     let rowIndex: number = 0;
@@ -34,13 +27,64 @@ const GameBoard: React.FunctionComponent = (): JSX.Element => {
     }
     setBoard(boardCopy);
     setCurrPlayer(currPlayer === 1 ? 2 : 1);
+    if (winCheck(rowIndex, columnIndex)) {
+      setBoard(initialBoard);
+      setCurrPlayer(1);
+    }
+  };
+  const winCheck = (rowIndex: number, columnIndex: number): boolean => {
+    return (
+      checkHorizontal(rowIndex, columnIndex) ||
+      checkVertical(rowIndex, columnIndex)
+      // checkDiagonalRight(rowIndex, columnIndex)
+    );
+  };
+  // const checkDiagonalRight = (
+  //   rowIndex: number,
+  //   columnIndex: number
+  // ): boolean => {
+  //   let row: Row = board.rows[rowIndex];
+
+  // };
+  const checkVertical = (rowIndex: number, columnIndex: number): boolean => {
+    let row: Row = board.rows[rowIndex];
+    let consecutiveRows: number = 0;
+    for (let r: number = 0; r < c4Rows; r++) {
+      if (
+        board.rows[r].columns[columnIndex].player ==
+        row.columns[columnIndex].player
+      ) {
+        consecutiveRows++;
+      } else {
+        consecutiveRows = 0;
+      }
+    }
+    if (consecutiveRows >= 4) {
+      return true;
+    }
+    return false;
+  };
+  const checkHorizontal = (rowIndex: number, columnIndex: number): boolean => {
+    let row: Row = board.rows[rowIndex];
+    let consecutiveColumns: number = 0;
+    for (let c: number = 0; c < c4Columns; c++) {
+      if (row.columns[c].player == row.columns[columnIndex].player) {
+        consecutiveColumns++;
+      } else {
+        consecutiveColumns = 0;
+      }
+    }
+    if (consecutiveColumns >= 4) {
+      return true;
+    }
+    return false;
   };
   return (
     <div>
       <div
         className="button"
         onClick={() => {
-          createBoard();
+          setBoard(initialBoard);
         }}
       >
         New Game
