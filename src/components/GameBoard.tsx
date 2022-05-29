@@ -29,8 +29,26 @@ const GameBoard: React.FunctionComponent = (): JSX.Element => {
     setCurrPlayer(currPlayer === 1 ? 2 : 1);
     if (winCheck(rowIndex, columnIndex)) {
       setBoard(initialBoard);
+      alert("player " + currPlayer + " wins");
       setCurrPlayer(1);
+    } else {
+      if (drawCheck()) {
+        setBoard(initialBoard);
+        alert("Draw");
+        setCurrPlayer(1);
+      }
     }
+  };
+  const drawCheck = (): boolean => {
+    let isBoardFilled: boolean =
+      board.rows.filter(
+        (row: Row) =>
+          row.columns.filter((column: Column) => column.player === null)
+            .length > 0
+      ).length > 0
+        ? false
+        : true;
+    return isBoardFilled;
   };
   const winCheck = (rowIndex: number, columnIndex: number): boolean => {
     return (
@@ -44,36 +62,41 @@ const GameBoard: React.FunctionComponent = (): JSX.Element => {
     rowIndex: number,
     columnIndex: number
   ): boolean => {
-    let columnToStartFrom: number = columnIndex
+    let columnToStartFrom: number = columnIndex;
     let consecutiveTiles: number = 0;
-    let rowToStartFrom: number = rowIndex
-    for(let i: number = 0;i < c4Rows;i++) {
-      let column: Column = board.rows[rowIndex - i]?.columns[columnIndex + i]
-      if(column) {
-       columnToStartFrom = columnIndex + i
-       rowToStartFrom = rowIndex - i
-      }else {
-        break
+    let rowToStartFrom: number = rowIndex;
+    for (let i: number = 0; i < c4Rows; i++) {
+      let column: Column = board.rows[rowIndex - i]?.columns[columnIndex + i];
+      if (column) {
+        columnToStartFrom = columnIndex + i;
+        rowToStartFrom = rowIndex - i;
+      } else {
+        break;
       }
     }
-    for(let j: number = 0;j < c4Rows;j++) {
-      let column: Column = board.rows[rowToStartFrom + j]?.columns[columnToStartFrom - j]
-      if(column) {
-        if(column.player ==  board.rows[rowIndex].columns[columnIndex].player) {
-          consecutiveTiles++
+    for (let j: number = 0; j < c4Rows; j++) {
+      let column: Column =
+        board.rows[rowToStartFrom + j]?.columns[columnToStartFrom - j];
+      if (column) {
+        if (
+          column.player === board.rows[rowIndex].columns[columnIndex].player
+        ) {
+          consecutiveTiles++;
           if (consecutiveTiles >= 4) {
             return true;
           }
+        } else {
+          consecutiveTiles = 0
         }
       }
     }
-    return false
+    return false;
   };
   const checkDiagonalRight = (
     rowIndex: number,
     columnIndex: number
   ): boolean => {
-    let consecutiveTiles: number = 1;
+    let consecutiveTiles: number = 0;
     let indexDifference: number = rowIndex - columnIndex;
     let rowToStartFrom: number = 0;
     let columnToStartFrom: number = 0;
@@ -86,7 +109,9 @@ const GameBoard: React.FunctionComponent = (): JSX.Element => {
       let column =
         board.rows[rowToStartFrom + i]?.columns[columnToStartFrom + i];
       if (column) {
-        if (column.player == board.rows[rowIndex].columns[columnIndex].player) {
+        if (
+          column.player === board.rows[rowIndex].columns[columnIndex].player
+        ) {
           consecutiveTiles++;
           if (consecutiveTiles >= 4) {
             return true;
@@ -103,7 +128,7 @@ const GameBoard: React.FunctionComponent = (): JSX.Element => {
     let consecutiveRows: number = 0;
     for (let r: number = 0; r < c4Rows; r++) {
       if (
-        board.rows[r].columns[columnIndex].player ==
+        board.rows[r].columns[columnIndex].player ===
         row.columns[columnIndex].player
       ) {
         consecutiveRows++;
@@ -120,7 +145,7 @@ const GameBoard: React.FunctionComponent = (): JSX.Element => {
     let row: Row = board.rows[rowIndex];
     let consecutiveColumns: number = 0;
     for (let c: number = 0; c < c4Columns; c++) {
-      if (row.columns[c].player == row.columns[columnIndex].player) {
+      if (row.columns[c].player === row.columns[columnIndex].player) {
         consecutiveColumns++;
         if (consecutiveColumns >= 4) {
           return true;
