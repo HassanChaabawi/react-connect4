@@ -17,16 +17,20 @@ const GameBoard: React.FunctionComponent = (): JSX.Element => {
   const updateBoard = (columnIndex: number): void => {
     let boardCopy: Board = board;
     let rowIndex: number = 0;
+    let areColumnsFull = true;
     for (let r: number = 5; r >= 0; r--) {
       let columnPlayer = boardCopy.rows[r].columns[columnIndex].player;
       if (!columnPlayer) {
         boardCopy.rows[r].columns[columnIndex].player = currPlayer;
         rowIndex = r;
+        areColumnsFull = false;
         break;
       }
     }
-    setBoard(boardCopy);
-    setCurrPlayer(currPlayer === 1 ? 2 : 1);
+    if (!areColumnsFull) {
+      setBoard(boardCopy);
+      setCurrPlayer(currPlayer === 1 ? 2 : 1);
+    }
     if (winCheck(rowIndex, columnIndex)) {
       setBoard(initialBoard);
       alert("player " + currPlayer + " wins");
@@ -86,7 +90,7 @@ const GameBoard: React.FunctionComponent = (): JSX.Element => {
             return true;
           }
         } else {
-          consecutiveTiles = 0
+          consecutiveTiles = 0;
         }
       }
     }
